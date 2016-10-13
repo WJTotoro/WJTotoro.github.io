@@ -102,7 +102,7 @@
           <!-- Date -->
           <span class="date-time info">On
             <span class="date">2016-10-13</span>
-            <span class="time">22:03:47</span>
+            <span class="time">23:51:58</span>
           </span>
           
           <!--  Categories  -->
@@ -125,7 +125,14 @@
         <!-- Post Main Content -->
         <div class="post-content">
           <p><code>要正确的理解闭包首先就要理解js的作用域</code></p>
-<h2 id="JS作用域"><a href="#JS作用域" class="headerlink" title="JS作用域"></a>JS作用域</h2><p>在JavaScript中，块状代码段（比如for循环这种）不会形成作用域，<strong>只有函数才能生成自己的作用域，在其中声明的变量或函数只有在函数内部可以调用</strong>。示例如下：<br><img src="img/demo1.png" alt=""></p>
+<h2 id="JS作用域"><a href="#JS作用域" class="headerlink" title="JS作用域"></a>JS作用域</h2><p>在JavaScript中，块状代码段（比如for循环这种）不会形成作用域，<strong>只有函数才能生成自己的作用域，在其中声明的变量或函数在函数外部不可访问</strong>示例如下<br><img src="img/demo1.png" alt=""><br>会发现除了调用函数fn能够显示a=1外，在函数外部a是undefined，是不可调用的，同理，如果在函数fn中声明另一个函数fn1,这个函数在外部也是不能被访问到的，因为它们都是函数fn的<em>局部变量</em>。<br>通常说到局部变量，大家都有的认知是全局下不可访问，但为什么全局下不可访问呢？因为局部变量是<code>只要在函数内部没有再用的可能性，就会被扔掉，不会保留其内存</code>，这个具体会在下一小节的一个典型demo中进行解释。</p>
+<h2 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h2><p>闭包的作用就是让我们可以操作其他函数的内部变量，常见使用场景是将闭包作为函数的内部函数，然后return出我们想要访问的数据或对象。看这个demo：<br><img src="img/demo2.png" alt=""><br>发现不论索引是多少，输出的结果都是10，而不是我们本来想要的i。下面我们来具体分析下为什么：</p>
+<ol>
+<li>这段代码的意思是，数组fnArr中的每个对象都是一个函数，这个函数将返回i值;</li>
+<li>这个函数只执行一步有关i的操作后，后续就什么都不做了，也就是刚才所说的，在函数内部，i没有再被使用的可能性，所以函数会将i=0丢弃；</li>
+<li>直到i++到10，这个时候for循环不再执行，相当于声明了var i = 10, 函数能访问到的i值就是10，所以才会出现上述结果。</li>
+</ol>
+<p>要怎么利用闭包解决这个问题呢？我们想让函数存储i这个变量，就必须要保证它有可能被使用，如下：<br><img src="img/demo3.png" alt=""></p>
 
         </div>
       </div>
