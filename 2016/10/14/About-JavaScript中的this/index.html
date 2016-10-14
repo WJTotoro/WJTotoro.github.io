@@ -8,7 +8,7 @@
   <meta name="description" content="">
   <meta name="author" content="Jocelyn W">
   <!-- Open Graph Data -->
-  <meta property="og:title" content="About-Js作用域和闭包"/>
+  <meta property="og:title" content="About-JavaScript中的this"/>
   <meta property="og:description" content="share learning notes." />
   <meta property="og:site_name" content="Jocelyn&#39;s blog"/>
   <meta property="og:type" content="article" />
@@ -44,7 +44,7 @@
     <div class="row">
       <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
         <div class="page-title with-background-image">
-          <p class="title">About-Js作用域和闭包</p>
+          <p class="title">About-JavaScript中的this</p>
           <p class="subtitle"></p>
         </div>
         <div class="site-menu with-background-image">
@@ -101,7 +101,7 @@
           
           <!-- Date -->
           <span class="date-time info">On
-            <span class="date">2016-10-13</span>
+            <span class="date">2016-10-14</span>
             <span class="time">19:03:25</span>
           </span>
           
@@ -117,22 +117,49 @@
           <div class="post-tags text-muted">
             Tags: 
 
-<a class="tag" href="/tags/JavaScript/">#JavaScript</a> <a class="tag" href="/tags/函数/">#函数</a>
+<a class="tag" href="/tags/JavaScript/">#JavaScript</a>
 
 
           </div>
         
         <!-- Post Main Content -->
         <div class="post-content">
-          <p><code>要正确的理解闭包首先就要理解js的作用域</code></p>
-<h2 id="JS作用域"><a href="#JS作用域" class="headerlink" title="JS作用域"></a>JS作用域</h2><p>在JavaScript中，块状代码段（比如for循环这种）不会形成作用域，<strong>只有函数才能生成自己的作用域，在其中声明的变量或函数在函数外部不可访问</strong>示例如下<br><img src="img/demo1.png" alt=""><br>会发现除了调用函数fn能够显示a=1外，在函数外部a是undefined，是不可调用的，同理，如果在函数fn中声明另一个函数fn1,这个函数在外部也是不能被访问到的，因为它们都是函数fn的<em>局部变量</em>。<br>通常说到局部变量，大家都有的认知是全局下不可访问，但为什么全局下不可访问呢？因为局部变量是<code>只要在函数内部没有再用的可能性，就会被扔掉，不会保留其内存</code>，这个具体会在下一小节的一个典型demo中进行解释。</p>
-<h2 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h2><p>闭包的作用就是让我们可以操作其他函数的内部变量，常见使用场景是将闭包作为函数的内部函数，然后return出我们想要访问的数据或对象。看这个demo：<br><img src="img/demo2.png" alt=""><br>发现不论索引是多少，输出的结果都是10，而不是我们本来想要的i。下面我们来具体分析下为什么：</p>
-<ol>
-<li>这段代码的意思是，数组fnArr中的每个对象都是一个函数，这个函数将返回i值;</li>
-<li>这个函数只执行一步有关i的操作后，后续就什么都不做了，也就是刚才所说的，在函数内部，i没有再被使用的可能性，所以函数会将i=0丢弃；</li>
-<li>直到i++到10，这个时候for循环不再执行，相当于声明了var i = 10, 函数能访问到的i值就是10，所以才会出现上述结果。</li>
-</ol>
-<p>要怎么利用闭包解决这个问题呢？我们想让函数存储i这个变量，就必须要保证它有可能被使用，这样才能给它开辟新的内存，如下：<br><img src="img/demo3.png" alt=""><br>在函数中嵌套了一个需要返回i的内部函数，这样对于外层函数来说，i在它的内部有被使用的可能性，这个就称之为闭包，我们想要让外部访问内部变量的话，只需return出即可。<br><code>需要注意的是，虽然使用闭包非常方便，但是滥用的话可能会造成信息泄露。</code></p>
+          <p><code>关于this的一个原则：总指向调用函数的那个对象</code></p>
+<h3 id="几种情况下的this指向"><a href="#几种情况下的this指向" class="headerlink" title="几种情况下的this指向"></a>几种情况下的this指向</h3><ul>
+<li>作为函数被调用，比如当在浏览器中测试如下代码,浏览器弹出的this会指向window，这是因为调用fn这个函数的对象是全局下的window。<blockquote>
+<p>function fn(){<br>   function fn1(){</p>
+<pre><code>alert(this);
+</code></pre><p>   }<br>   fn1();<br>}<br>fn();</p>
+</blockquote>
+</li>
+</ul>
+<p>上面这种情况还有两个特例，那就是setTimeout和setInterval这两个函数，不论嵌套与否，this仍是全局变量，也就是总指向window。</p>
+<ul>
+<li>在事件处理程序中，this代表事件的源对象DOM，这个很好理解，就不贴代码了。需要注意的是在IE8以下有bug,指向的是window对象。</li>
+<li>作为对象方法调用（当函数作为一个对象的属性时，称之为对象的方法），this会被绑定到该对象上。比如：<blockquote>
+<p>var obj = {<br>   name:”Ann”,<br>   fn:function fn0(){</p>
+<pre><code>console.log(this);
+</code></pre><p>   }<br>};<br>obj.fn();</p>
+</blockquote>
+</li>
+</ul>
+<p>此时this会指向obj这个对象。</p>
+<ul>
+<li>当在构造函数里使用，this会指向生成的新对象，如下：<blockquote>
+<p>function Person(name){<br>   this.name = name;<br>}<br>Person.prototype.sayName = function(){<br>   console.log(this.name);<br>}<br>var p1 = new Person(“Bob”);<br>p1.sayName();</p>
+</blockquote>
+</li>
+</ul>
+<p>同理，只要通过Person函数构造出的新对象，这里的this都指向本身。</p>
+<h3 id="call和apply"><a href="#call和apply" class="headerlink" title="call和apply"></a>call和apply</h3><p>这两个方法可以帮助我们改变函数的上下环境，this指向也会随之发生改变，两者只在书写形式上有所不同。<br><code>Fn.call(context,param1,param2,..)</code> 和 <code>Fn.apply(context,[param1],[param2],..)</code><br>解释为，我们在执行的context作用域下调用Fn,param指传参。以函数的混合模式为例</p>
+<blockquote>
+<p>var Person = function(name,age){<br>  this.name = name;<br>  this.age = age;<br>};<br>var Student = function(name,age,sex){<br>  Person.call(this,name,age);<br>  this.sex = sex;<br>}</p>
+</blockquote>
+<p>这样Student通过call方法完成了它对Person的继承。还有个更简单的例子，假如现在我们有一组全是数字的数组arr，想要挑出其中最小的一个值，怎样做到最简呢？我们会想到Math.min()这个方法可以实现，但它只能对传入其中的参数进行操作，如果把数组中的所有数字全部传入进去未免太复杂，这个时候就想到使用call和apply这两个方法：</p>
+<blockquote>
+<p>Math.min.call(null,arr);</p>
+</blockquote>
+<p><code>null指在当前环境下运行这个函数</code>。<br>所以简单说来，call和apply就是减少了函数调用的限制，让其变得更加简化。</p>
 
         </div>
       </div>
